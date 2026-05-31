@@ -18,7 +18,7 @@ CREATE TABLE hours (
     form_id INT NOT NULL,
     all_h INT,
     inclass_h INT,
-    CONSTRAINT Fhours_faculty FOREIGN KEY (faculty_id) REFERENCES faculty(id),
+    CONSTRAINT hours_faculty FOREIGN KEY (faculty_id) REFERENCES faculty(id),
     CONSTRAINT hours_form FOREIGN KEY (form_id) REFERENCES form(id)
 );
 
@@ -84,7 +84,7 @@ INSERT INTO process (stud_id, hours_id) VALUES
 (7, 7),
 (8, 8),
 (9, 9),
-(10, 10),
+(10, 10);
 
 SELECT stud.last_name, stud.f_name, stud.s_name, faculty.faculty_name, hours.course FROM stud
 JOIN process ON stud.id = process.stud_id
