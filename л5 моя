@@ -1,0 +1,87 @@
+CREATE DATABASE l5
+USE l5
+
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
+    FirstName NVARCHAR(50),
+    LastName NVARCHAR(50),
+    BirthDate DATE
+);
+
+CREATE TABLE Categories (
+    CategoryID INT PRIMARY KEY IDENTITY(1,1),
+    CategoryName NVARCHAR(50)
+);
+
+CREATE TABLE Products (
+    ProductID INT PRIMARY KEY IDENTITY(1,1),
+    ProductName NVARCHAR(100),
+    CategoryID INT,
+    Price INT,
+    CONSTRAINT Prod_Categor FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+);
+
+INSERT INTO Employees (FirstName, LastName, BirthDate) VALUES
+('Никита', 'Кантер', '1984-03-24'),
+('Владимир', 'Никитин', '2003-03-14'),
+('Александр', 'Медведев', '1999-03-29');
+
+INSERT INTO Categories (CategoryName) VALUES 
+('овощи'),
+('Фрукты');
+
+INSERT INTO Products (ProductName, CategoryID, Price) VALUES
+('Огурец', 1, 110),
+('Фейхоа', 2, 720),
+('Банан', 2, 200);
+
+
+CREATE FUNCTION GetAge (@BirthDate DATE)
+RETURNS INT
+AS BEGIN
+    RETURN DATEDIFF(YEAR, @BirthDate, GETDATE());
+END;
+
+SELECT FirstName, LastName, dbo.GetAge(BirthDate) AS Age
+FROM Employees
+WHERE dbo.GetAge(BirthDate) > 30;
+
+
+
+CREATE FUNCTION GetProd (@CategoryName NVARCHAR(50))
+RETURNS TABLE
+AS RETURN
+(
+    SELECT Products.ProductID, Products.ProductName, Products.Price
+    FROM Products 
+    JOIN Categories 
+    ON Categories.CategoryID = Products.CategoryID
+    WHERE Categories.CategoryName = @CategoryName
+);
+
+SELECT * FROM dbo.GetProd('овощи');
+
+
+CREATE FUNCTION FormatName (@FirstName NVARCHAR(50), @LastName NVARCHAR(50))
+RETURNS NVARCHAR(100)
+AS BEGIN
+    RETURN CONCAT(@LastName, ', ', @FirstName);
+END;
+
+SELECT dbo.FormatName(FirstName, LastName) AS Form_Name
+FROM Employees;
+
+
+
+CREATE FUNCTION GetAvgPrice (@CategoryID INT)
+RETURNS INT
+AS BEGIN
+    RETURN (
+        SELECT ISNULL(AVG(Price), 0) 
+        FROM Products 
+        WHERE CategoryID = @CategoryID
+    );
+END;
+
+SELECT CategoryName, dbo.GetAvgPrice(CategoryID) AS Avg_Price
+FROM Categories;
